@@ -9,7 +9,6 @@ CTestTestfile.cmake
 CTestConfiguration.ini
 CPackConfig.cmake
 CPackSourceConfig.cmake
-*.cmake
 !CMakeLists.txt
 build/
 vcpkg_installed
