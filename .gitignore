@@ -13,3 +13,5 @@ CPackSourceConfig.cmake
 !CMakeLists.txt
 build/
 vcpkg_installed
+
+.envrc
