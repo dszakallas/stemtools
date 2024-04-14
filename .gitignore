@@ -14,3 +14,5 @@ build/
 vcpkg_installed
 
 .envrc
+.cache
+.cmake

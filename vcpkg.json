@@ -1,6 +1,8 @@
 {
   "dependencies": [
     "taglib",
-    "zlib"
+    "zlib",
+    "avcpp",
+    "openssl"
   ]
 }

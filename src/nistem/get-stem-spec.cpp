@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 constexpr uint8_t atomPreambleSize = 8;
 constexpr uint8_t extendedSizeFieldSize = 8;

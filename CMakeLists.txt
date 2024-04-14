@@ -9,30 +9,35 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# Define the executable
-add_executable(get-stem-spec-gpac get-stem-spec-gpac.cpp)
-add_executable(get-stem-spec get-stem-spec.cpp)
+add_executable(get-stem-spec src/nistem/get-stem-spec.cpp)
 
-# Find the mp4v2 library
-find_package(MP4v2 REQUIRED)
-IF (MP4V2_FOUND)
-    MESSAGE(STATUS "MP4V2 found")
-ELSE (MP4V2_FOUND)
-    MESSAGE(FATAL_ERROR "MP4V2 not found")
-ENDIF (MP4V2_FOUND)
+if(WITH_NISTEM_GPAC)
+  find_package(GPAC REQUIRED)
+  add_executable(get-stem-spec-gpac src/nistem/get-stem-spec-gpac.cpp)
+  target_include_directories(get-stem-spec-gpac PUBLIC ${GPAC_INCLUDE_DIR})
+  target_link_libraries(get-stem-spec-gpac PRIVATE ${GPAC_LIBRARIES})
+endif()
 
-# Find the GPAC library
-find_package(GPAC REQUIRED)
-IF (GPAC_FOUND)
-    MESSAGE(STATUS "GPAC found")
-ELSE (GPAC_FOUND)
-    MESSAGE(FATAL_ERROR "GPAC not found")
-ENDIF (GPAC_FOUND)
+if(WITH_DEMUCS_TORCH)
+  execute_process(COMMAND python3 -c "import torch;print(torch.utils.cmake_prefix_path)"
+    OUTPUT_VARIABLE TORCH_CMAKE_PREFIX_PATH
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+  list(APPEND CMAKE_PREFIX_PATH ${TORCH_CMAKE_PREFIX_PATH})
+  find_package(Torch REQUIRED)
+  find_package(avcpp REQUIRED)
+  find_package(Threads REQUIRED)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
+  add_executable(demucs-torch
+    src/demucs/demucs-torch.cpp
+    src/common/error.cpp
+    src/audio/audio.cpp
+  )
+  target_include_directories(demucs-torch PUBLIC ${TORCH_INCLUDE_DIRS} ${avcpp_INCLUDE_DIRS})
+  target_link_libraries(demucs-torch PRIVATE ${TORCH_LIBRARIES} avcpp::avcpp-static)
+  if(APPLE)
+    target_link_libraries(demucs-torch PRIVATE "-framework Security")
+  endif()
 
-# Find the TagLib library
-find_package(taglib CONFIG REQUIRED)
+endif()
 
-find_package(ZLIB REQUIRED)
-
-target_include_directories(get-stem-spec-gpac PUBLIC ${GPAC_INCLUDE_DIR})
-target_link_libraries(get-stem-spec-gpac PRIVATE ${GPAC_LIBRARIES})
