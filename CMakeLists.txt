@@ -5,8 +5,8 @@ project(StemTools VERSION 1.0)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 
-# Set the C++ standard to C++17
-set(CMAKE_CXX_STANDARD 17)
+# Set the C++ standard to C++20
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 add_executable(get-stem-spec src/nistem/get-stem-spec.cpp)
@@ -29,6 +29,7 @@ if(WITH_DEMUCS_TORCH)
   find_package(Threads REQUIRED)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
   add_executable(demucs-torch
+    src/demucs/demucs.cpp
     src/demucs/demucs-torch.cpp
     src/common/error.cpp
     src/audio/audio.cpp
