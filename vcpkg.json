@@ -3,6 +3,7 @@
     "taglib",
     "zlib",
     "avcpp",
-    "openssl"
+    "openssl",
+    "argparse"
   ]
 }

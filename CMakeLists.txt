@@ -18,6 +18,10 @@ if(WITH_NISTEM_GPAC)
   target_link_libraries(get-stem-spec-gpac PRIVATE ${GPAC_LIBRARIES})
 endif()
 
+
+add_executable(demucs-test)
+set(DEMUCS_TEST_SOURCES src/demucs/demucs.cpp src/demucs/demucs-test.cpp src/common/error.cpp src/audio/audio.cpp)
+
 if(WITH_DEMUCS_TORCH)
   execute_process(COMMAND python3 -c "import torch;print(torch.utils.cmake_prefix_path)"
     OUTPUT_VARIABLE TORCH_CMAKE_PREFIX_PATH
@@ -25,20 +29,23 @@ if(WITH_DEMUCS_TORCH)
   )
   list(APPEND CMAKE_PREFIX_PATH ${TORCH_CMAKE_PREFIX_PATH})
   find_package(Torch REQUIRED)
-  find_package(avcpp REQUIRED)
-  find_package(Threads REQUIRED)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
-  add_executable(demucs-torch
-    src/demucs/demucs.cpp
-    src/demucs/demucs-torch.cpp
-    src/common/error.cpp
-    src/audio/audio.cpp
-  )
-  target_include_directories(demucs-torch PUBLIC ${TORCH_INCLUDE_DIRS} ${avcpp_INCLUDE_DIRS})
-  target_link_libraries(demucs-torch PRIVATE ${TORCH_LIBRARIES} avcpp::avcpp-static)
-  if(APPLE)
-    target_link_libraries(demucs-torch PRIVATE "-framework Security")
-  endif()
+  add_definitions(-DDEMUCS_TORCH)
 
+  list(APPEND DEMUCS_TEST_SOURCES src/demucs/_torch/demucs.cpp)
+
+  target_include_directories(demucs-test PUBLIC ${TORCH_INCLUDE_DIRS})
+  target_link_libraries(demucs-test PRIVATE ${TORCH_LIBRARIES})
 endif()
+
+if(APPLE)
+    target_link_libraries(demucs-test PRIVATE "-framework Security")
+endif()
+
+find_package(avcpp REQUIRED)
+find_package(Threads REQUIRED)
+find_package(argparse REQUIRED)
+target_sources(demucs-test PRIVATE ${DEMUCS_TEST_SOURCES})
+target_include_directories(demucs-test PUBLIC ${avcpp_INCLUDE_DIRS} ${argparse_INCLUDE_DIRS})
+target_link_libraries(demucs-test PRIVATE avcpp::avcpp-static Threads::Threads)
 
